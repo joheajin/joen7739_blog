@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>조은열쇠도장 스마트 포스팅 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1d4ed8',
+                        primaryHover: '#1e40af',
+                        darkBg: '#111827',
+                        darkCard: '#1f2937',
+                        google: '#4285F4'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        html.dark { color-scheme: dark; }
+        html:not(.dark) { color-scheme: light; }
+
+        .service-btn.active { background-color: #1d4ed8; color: white; border-color: #1d4ed8; box-shadow: 0 4px 10px rgba(29, 78, 216, 0.5); }
+        .dark .service-btn.active { background-color: #fbbf24; color: #000; border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-darkBg min-h-screen font-sans transition-colors duration-200">
+    
+    <!-- Header -->
+    <header class="bg-white dark:bg-darkCard shadow-sm border-b border-slate-300 dark:border-slate-700 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-primary p-2 rounded-lg shadow-md">
+                    <i class="fa-solid fa-key text-white text-lg"></i>
+                </div>
+                <h1 class="text-xl font-bold text-slate-900 dark:text-white">조은열쇠도장</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="saveStatus" class="text-[10px] text-green-500 font-bold opacity-0 transition-opacity">저장됨</span>
+                <button onclick="toggleDarkMode()" class="text-slate-500 dark:text-slate-300 text-2xl p-2 active:scale-90 transition-transform">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="inputView" class="max-w-3xl mx-auto px-4 py-6 mb-32">
+        <div class="bg-white dark:bg-darkCard rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-5">
+            <form id="postForm" class="space-y-8" oninput="autoSaveText()">
+                <!-- 1. Date & Location -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 일자</label>
+                        <input type="date" id="workDate" onkeydown="return false;" onchange="this.blur();" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-bold focus:outline-none shadow-sm cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 장소 <span class="text-[10px] font-normal text-slate-400 ml-1">(울산 중구 DB)</span></label>
+                        <div class="relative">
+                            <input type="text" id="workLocation" list="aptList" placeholder="아파트명 검색/입력" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white pl-11 pr-4 py-4 text-base font-bold focus:outline-none shadow-sm">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        </div>
+                        <datalist id="aptList">
+                            <option value="번영로 센트리지 (복산동)"></option>
+                            <option value="복산 아이파크 (복산동)"></option>
+                            <option value="동덕현대 (복산동)"></option>
+                            <option value="평창아파트 (복산동)"></option>
+                            <option value="학성 파크디아채 (학성동)"></option>
+                            <option value="학성 일동미라주 (학성동)"></option>
+                            <option value="학성 청솔 (학성동)"></option>
+                            <option value="강변 e편한세상 (반구동)"></option>
+                            <option value="반구 신동아파밀리에 (반구동)"></option>
+                            <option value="반구 에일린의뜰 (반구동)"></option>
+                            <option value="반구 일동미라주 (반구동)"></option>
+                            <option value="우정 아이파크 (우정동)"></option>
+                            <option value="우정 선경아파트 (우정동)"></option>
+                            <option value="우정 마제스타워 (우정동)"></option>
+                            <option value="태화강 국가정원 동원비스타 (우정동)"></option>
+                            <option value="우정혁신도시 푸르지오 (유곡동)"></option>
+                            <option value="우정혁신도시 에일린의뜰 (유곡동)"></option>
+                            <option value="유곡 e편한세상 (유곡동)"></option>
+                            <option value="유곡 푸르지오 (유곡동)"></option>
+                            <option value="약사 더샵 (약사동)"></option>
+                            <option value="약사 아이파크 (약사동)"></option>
+                            <option value="약사 래미안 (약사동)"></option>
+                            <option value="남외 푸르지오 (남외동)"></option>
+                            <option value="남외 에일린의뜰 (남외동)"></option>
+                            <option value="태화 동부아파트 (태화동)"></option>
+                            <option value="태화 삼익아파트 (태화동)"></option>
+                            <option value="다운 아이파크 (다운동)"></option>
+                            <option value="성안 청구아파트 (성안동)"></option>
+                            <option value="태화강 엑소디움 (옥교동)"></option>
+                            <option value="성남 센트럴자이 (성남동)"></option>
+                        </datalist>
+                    </div>
+                </div>
+
+                <!-- 2. Service Selection -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-3 text-lg">서비스 선택</label>
+                    <div class="grid grid-cols-2 gap-3" id="serviceButtonGroup">
+                        <button type="button" data-name="도어락 설치" onclick="selectService(this, '도어락 설치')" class="service-btn bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl py-5 font-black text-slate-700 dark:text-slate-200 transition-all active:scale-95 text-lg">도어락 설치</button>
+                        <button type="button" data-name="잠긴 문 열기" onclick="selectService(this, '잠긴 문 열기')" class="service-btn bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl py-5 font-black text-slate-700 dark:text-slate-200 transition-all active:scale-95 text-lg">잠긴 문 열기</button>
+                        <button type="button" data-name="열쇠 복사" onclick="selectService(this, '열쇠 복사')" class="service-btn bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl py-5 font-black text-slate-700 dark:text-slate-200 transition-all active:scale-95 text-lg">열쇠 복사</button>
+                        <button type="button" data-name="도장" onclick="selectService(this, '도장')" class="service-btn bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl py-5 font-black text-slate-700 dark:text-slate-200 transition-all active:scale-95 text-lg">도장</button>
+                    </div>
+                    <input type="hidden" id="selectedServiceValue">
+                </div>
+
+                <!-- 3. Photos -->
+                <div class="space-y-6">
+                    <div class="bg-amber-50 dark:bg-amber-900/10 p-5 rounded-2xl border border-amber-200 dark:border-amber-900/30">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="text-lg font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2">작업 전 (Before)</label>
+                            <button type="button" onclick="addImageSlot('before')" class="bg-amber-500 text-white px-4 py-2 rounded-full font-bold shadow-md active:scale-95 text-sm">추가</button>
+                        </div>
+                        <div id="beforeContainer" class="space-y-4"></div>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900/10 p-5 rounded-2xl border border-blue-200 dark:border-blue-900/30">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="text-lg font-bold text-blue-900 dark:text-blue-200 flex items-center gap-2">작업 후 (After)</label>
+                            <button type="button" onclick="addImageSlot('after')" class="bg-blue-500 text-white px-4 py-2 rounded-full font-bold shadow-md active:scale-95 text-sm">추가</button>
+                        </div>
+                        <div id="afterContainer" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- 4. Details -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 특이사항</label>
+                    <textarea id="workDetails" rows="4" placeholder="추가 전달사항을 입력하세요." class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-medium focus:outline-none shadow-sm"></textarea>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Fixed Action Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-darkCard border-t border-slate-200 dark:border-slate-700 p-4 pb-6 z-40 shadow-lg">
+        <div class="max-w-3xl mx-auto">
+            <button onclick="processAndSaveToDrive()" id="publishBtn" class="w-full bg-google hover:bg-opacity-90 text-white font-black py-5 rounded-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xl">
+                <i class="fa-brands fa-google-drive text-2xl"></i> 구글 드라이브 전송
+            </button>
+        </div>
+    </div>
+
+    <!-- Processing Modal -->
+    <div id="publishModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-darkCard rounded-3xl shadow-2xl max-w-sm w-full p-7 border border-slate-100 dark:border-slate-700 flex flex-col">
+            <div id="modalLoading" class="text-center py-6">
+                <div class="mx-auto h-20 w-20 relative mb-6">
+                    <div class="absolute inset-0 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-google rounded-full border-t-transparent animate-spin"></div>
+                    <i class="fa-brands fa-google-drive text-google text-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                </div>
+                <h3 class="text-xl font-bold dark:text-white">전송 처리 중...</h3>
+                <p id="loadingDetail" class="text-sm text-slate-500 dark:text-slate-400 mt-2">AI 원고 작성 및 이미지 인코딩 중</p>
+            </div>
+            <div id="modalSuccess" class="hidden text-center py-6">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-5">
+                    <i class="fa-solid fa-check text-green-600 dark:text-green-500 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold dark:text-white mb-2">전송 완료!</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">구글 드라이브 <span class="font-bold text-slate-800 dark:text-slate-200" id="savedFolderName"></span> 폴더에 저장되었습니다.</p>
+                <button onclick="closeModal(true)" class="w-full bg-slate-900 dark:bg-slate-700 text-white py-4 rounded-xl font-bold text-lg active:scale-95 transition-transform">작업 종료</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyMOseEngLfI2ts233vXtQwTr4gPyqO7RVdfMXImYbFY1t6RRwSQyYvM8M0_TDj_-P5dw/exec"; 
+
+        // --- IndexedDB ---
+        const dbName = "LocksmithAppDB";
+        let db;
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = (e) => { db = e.target.result; db.createObjectStore("photos", { keyPath: "id" }); };
+        request.onsuccess = (e) => { db = e.target.result; loadStoredPhotos(); };
+
+        async function savePhotoToDB(id, type, dataUrl) { const tx = db.transaction("photos", "readwrite"); tx.objectStore("photos").put({ id, type, dataUrl }); }
+        async function deletePhotoFromDB(id) { const tx = db.transaction("photos", "readwrite"); tx.objectStore("photos").delete(id); }
+        async function loadStoredPhotos() {
+            const tx = db.transaction("photos", "readonly");
+            const store = tx.objectStore("photos");
+            const photos = await new Promise(resolve => {
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve([]);
+            });
+            photos.forEach(photo => restorePhotoSlot(photo.type, photo.id, photo.dataUrl));
+            if (document.getElementById('beforeContainer').children.length === 0) addImageSlot('before');
+            if (document.getElementById('afterContainer').children.length === 0) addImageSlot('after');
+        }
+
+        let selectedServiceName = '';
+
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+            }
+        }
+        function toggleDarkMode() {
+            const htmlClasses = document.documentElement.classList;
+            const icon = document.getElementById('themeIcon');
+            if (htmlClasses.contains('dark')) { htmlClasses.remove('dark'); localStorage.theme = 'light'; icon.classList.replace('fa-sun', 'fa-moon'); }
+            else { htmlClasses.add('dark'); localStorage.theme = 'dark'; icon.classList.replace('fa-moon', 'fa-sun'); }
+        }
+        initTheme();
+
+        function selectService(btn, name) {
+            document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedServiceName = name;
+            document.getElementById('selectedServiceValue').value = name;
+            autoSaveText();
+        }
+
+        function addImageSlot(type, existingId = null) {
+            const container = document.getElementById(type + 'Container');
+            const slotId = existingId || `img-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            const slot = document.createElement('div');
+            slot.className = 'flex flex-col gap-2 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm';
+            slot.id = `slot-${slotId}`;
+            slot.innerHTML = `
+                <div class="flex gap-2">
+                    <button type="button" onclick="triggerInput('${slotId}', true)" class="flex-1 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-lg py-4 flex flex-col items-center gap-1 active:bg-slate-200"><i class="fa-solid fa-camera"></i><span class="text-[10px] font-black">촬영</span></button>
+                    <button type="button" onclick="triggerInput('${slotId}', false)" class="flex-1 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-lg py-4 flex flex-col items-center gap-1 active:bg-slate-200"><i class="fa-solid fa-image"></i><span class="text-[10px] font-black">첨부</span></button>
+                    <button type="button" onclick="removeSlot('${slotId}')" class="w-14 bg-red-50 text-red-500 rounded-lg flex items-center justify-center"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <input type="file" id="input-${slotId}" class="hidden" accept="image/*" onchange="previewImage(this, '${slotId}', '${type}')">
+                <div id="preview-${slotId}" class="hidden rounded-lg overflow-hidden border border-slate-200 mt-1 relative">
+                    <img src="" class="w-full h-40 object-cover">
+                </div>
+            `;
+            container.appendChild(slot);
+        }
+
+        function restorePhotoSlot(type, slotId, dataUrl) { addImageSlot(type, slotId); const previewDiv = document.getElementById(`preview-${slotId}`); previewDiv.querySelector('img').src = dataUrl; previewDiv.classList.remove('hidden'); }
+        function triggerInput(slotId, isCamera) { const input = document.getElementById(`input-${slotId}`); if (isCamera) input.setAttribute('capture', 'environment'); else input.removeAttribute('capture'); input.click(); }
+        async function previewImage(input, slotId, type) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = async (e) => { const dataUrl = e.target.result; const previewDiv = document.getElementById(`preview-${slotId}`); previewDiv.querySelector('img').src = dataUrl; previewDiv.classList.remove('hidden'); savePhotoToDB(slotId, type, dataUrl); }; reader.readAsDataURL(input.files[0]); } }
+        function removeSlot(slotId) { const el = document.getElementById(`slot-${slotId}`); if (el) { el.remove(); deletePhotoFromDB(slotId); } }
+
+        function autoSaveText() {
+            const data = { date: document.getElementById('workDate').value, location: document.getElementById('workLocation').value, service: selectedServiceName, details: document.getElementById('workDetails').value };
+            localStorage.setItem('locksmith_draft', JSON.stringify(data));
+            const status = document.getElementById('saveStatus');
+            status.style.opacity = '1';
+            setTimeout(() => { status.style.opacity = '0'; }, 1000);
+        }
+
+        function learnNewLocation(loc) {
+            if (!loc || loc.trim() === '') return;
+            const datalist = document.getElementById('aptList');
+            const options = Array.from(datalist.options).map(o => o.value);
+            if (!options.includes(loc)) {
+                const customLocs = JSON.parse(localStorage.getItem('locksmith_custom_locations') || '[]');
+                if (!customLocs.includes(loc)) {
+                    customLocs.push(loc);
+                    localStorage.setItem('locksmith_custom_locations', JSON.stringify(customLocs));
+                    const newOpt = document.createElement('option');
+                    newOpt.value = loc;
+                    datalist.appendChild(newOpt);
+                }
+            }
+        }
+
+        function loadDraft() {
+            const customLocs = JSON.parse(localStorage.getItem('locksmith_custom_locations') || '[]');
+            const datalist = document.getElementById('aptList');
+            customLocs.forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc;
+                datalist.appendChild(opt);
+            });
+
+            const draft = JSON.parse(localStorage.getItem('locksmith_draft'));
+            if (draft) {
+                document.getElementById('workDate').value = draft.date;
+                document.getElementById('workLocation').value = draft.location;
+                document.getElementById('workDetails').value = draft.details;
+                if (draft.service) { const btn = document.querySelector(`[data-name="${draft.service}"]`); if (btn) selectService(btn, draft.service); }
+            } else { document.getElementById('workDate').valueAsDate = new Date(); }
+        }
+
+        async function processAndSaveToDrive() {
+            const date = document.getElementById('workDate').value;
+            const location = document.getElementById('workLocation').value;
+            const service = selectedServiceName;
+            const details = document.getElementById('workDetails').value;
+
+            if (!service || !location) { alert("서비스와 장소를 입력해주세요!"); return; }
+            
+            learnNewLocation(location);
+
+            const modal = document.getElementById('publishModal');
+            document.getElementById('modalLoading').classList.remove('hidden');
+            document.getElementById('modalSuccess').classList.add('hidden');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            try {
+                // 1. AI 원고 생성
+                document.getElementById('loadingDetail').innerText = "AI가 블로그 포스팅 원고 작성 중...";
+                const aiText = await generateAIText(date, location, service, details);
+
+                // 2. 이미지 데이터 추출 (규칙에 따라 이름 부여)
+                document.getElementById('loadingDetail').innerText = "이미지 전송 데이터 준비 중...";
+                const photos = [];
+                
+                // Before 사진들
+                const beforePreviews = document.querySelectorAll('#beforeContainer [id^="preview-"]:not(.hidden) img');
+                beforePreviews.forEach((img, index) => {
+                    photos.push({
+                        name: `${service}_작업전${index + 1}.JPG`,
+                        data: img.src.split(',')[1]
+                    });
+                });
+                
+                // After 사진들
+                const afterPreviews = document.querySelectorAll('#afterContainer [id^="preview-"]:not(.hidden) img');
+                afterPreviews.forEach((img, index) => {
+                    photos.push({
+                        name: `${service}_작업후${index + 1}.JPG`,
+                        data: img.src.split(',')[1]
+                    });
+                });
+
+                const payload = {
+                    folderName: `${date}_${location}`,
+                    content: aiText,
+                    photos: photos
+                };
+
+                // 3. Google Apps Script 전송
+                document.getElementById('loadingDetail').innerText = "구글 드라이브로 파일 전송 중...";
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                document.getElementById('savedFolderName').innerText = payload.folderName;
+                document.getElementById('modalLoading').classList.add('hidden');
+                document.getElementById('modalSuccess').classList.remove('hidden');
+
+            } catch (err) {
+                alert("오류 발생: " + err.message);
+                closeModal();
+            }
+        }
+
+        async function generateAIText(date, location, service, details) {
+            const apiKey = ""; 
+            const prompt = `당신은 울산 '조은열쇠도장'의 마케팅 전문가입니다. 
+다음 정보를 바탕으로 정중하고 따뜻한 네이버 블로그 포스팅 원고를 작성하세요.
+
+[필수 포함 정보]
+- 시작 문구: "안녕하세요! 울산의 중구 반구동에 위치한 **조은열쇠도장** 입니다." 반드시 포함.
+- 강조 사항: 작업 장소(${location})와 "반구동에 위치한 조은열쇠도장"을 문맥 속에서 여러 번 강조.
+- 작업 데이터: 일자(${date}), 서비스(${service}), 특이사항(${details})
+- 하단 정보:
+  상담 및 예약: 010-4433-7739
+  위치: 울산광역시 중구 반구동 103-5번지 세한프리빌3차 3호
+  서비스 항목: 도어락 설치/수리, 디지털키, 도장 제작, 각종 열쇠 출장
+
+[지침]
+1. 문체는 정중하고 따뜻한 느낌으로 작성.
+2. 사진은 작업 전 / 작업 후 2가지 패턴만 존재하며, 글 흐름에 맞게 "[작업 전 사진]", "[작업 후 사진]" 위치를 표시할 것.
+`;
+
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        function closeModal(clearForm) {
+            document.getElementById('publishModal').classList.add('hidden');
+            document.getElementById('publishModal').classList.remove('flex');
+            if(clearForm) {
+                document.getElementById('postForm').reset();
+                document.getElementById('beforeContainer').innerHTML = '';
+                document.getElementById('afterContainer').innerHTML = '';
+                addImageSlot('before'); addImageSlot('after');
+                localStorage.removeItem('locksmith_draft');
+            }
+        }
+        window.onload = () => {
+            initTheme();
+            loadDraft();
+        };
+    </script>
+</body>
+</html>
