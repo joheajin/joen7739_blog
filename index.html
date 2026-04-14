@@ -416,15 +416,18 @@
 2. 사진은 작업 전 / 작업 후 2가지 패턴만 존재하며, 글 흐름에 맞게 "[작업 전 사진]", "[작업 후 사진]" 위치를 표시할 것.
 `;
 
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            // [수정됨] 범용 API 키가 접근할 수 있는 가장 빠르고 안정적인 표준 모델로 주소 변경
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
             const data = await res.json();
             
+            // API 응답 데이터 검증 로직 (에러 발생 시 콘솔에 상세 이유 출력)
             if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                throw new Error("AI 응답 데이터가 없습니다.");
+                console.error("AI API 에러 상세 내역:", data); // 개발자 도구에서 에러 원인을 확인할 수 있도록 기록
+                throw new Error("AI 응답 데이터가 없습니다. API 키 상태 또는 모델 접근 권한을 확인하세요.");
             }
             
             return data.candidates[0].content.parts[0].text;
