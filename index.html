@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>조은열쇠도장 스마트 포스팅 시스템</title>
+    <title>조은열쇠도장 스마트 포스팅 시스템 v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
@@ -26,24 +26,25 @@
         * { -webkit-tap-highlight-color: transparent; }
         html.dark { color-scheme: dark; }
         html:not(.dark) { color-scheme: light; }
-        
         .service-btn.active { background-color: #1d4ed8; color: white; border-color: #1d4ed8; box-shadow: 0 4px 10px rgba(29, 78, 216, 0.5); }
         .dark .service-btn.active { background-color: #fbbf24; color: #000; border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-darkBg min-h-screen font-sans transition-colors duration-200">
     
-    <!-- Header -->
     <header class="bg-white dark:bg-darkCard shadow-sm border-b border-slate-300 dark:border-slate-700 sticky top-0 z-50">
         <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-primary p-2 rounded-lg shadow-md">
                     <i class="fa-solid fa-key text-white text-lg"></i>
                 </div>
-                <h1 class="text-xl font-bold text-slate-900 dark:text-white">조은열쇠도장</h1>
+                <!-- 버전 식별자 V3.0 (캐시 확인용) -->
+                <h1 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    조은열쇠도장 <span class="text-[10px] bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 px-2 py-0.5 rounded-full font-black tracking-widest border border-red-200 dark:border-red-800">V3.0 (에러추적기 탑재)</span>
+                </h1>
             </div>
             <div class="flex items-center gap-2">
-                <span id="saveStatus" class="text-[10px] text-green-500 font-bold opacity-0 transition-opacity">저장됨</span>
+                <span id="saveStatus" class="text-[10px] text-green-500 font-bold opacity-0 transition-opacity">임시저장됨</span>
                 <button onclick="toggleDarkMode()" class="text-slate-500 dark:text-slate-300 text-2xl p-2 active:scale-90 transition-transform">
                     <i id="themeIcon" class="fa-solid fa-moon"></i>
                 </button>
@@ -58,7 +59,6 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 일자</label>
-                        <!-- 달력 포커스 오류 해결을 위한 순수 HTML5 Date 속성 유지 -->
                         <input type="date" id="workDate" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-bold focus:outline-none shadow-sm cursor-pointer">
                     </div>
                     <div>
@@ -159,14 +159,14 @@
                     <div class="absolute inset-0 border-4 border-google rounded-full border-t-transparent animate-spin"></div>
                     <i class="fa-brands fa-google-drive text-google text-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
                 </div>
-                <h3 class="text-xl font-bold dark:text-white">전송 처리 중...</h3>
-                <p id="loadingDetail" class="text-sm text-slate-500 dark:text-slate-400 mt-2">AI 원고 작성 및 이미지 압축 중</p>
+                <h3 class="text-xl font-bold dark:text-white">서버로 데이터 전송 중...</h3>
+                <p id="loadingDetail" class="text-sm text-slate-500 dark:text-slate-400 mt-2">이미지 최적화 및 서버 통신 중</p>
             </div>
             <div id="modalSuccess" class="hidden text-center py-6">
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-5">
                     <i class="fa-solid fa-check text-green-600 dark:text-green-500 text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-bold dark:text-white mb-2">전송 완료!</h3>
+                <h3 class="text-xl font-bold dark:text-white mb-2">전송 및 AI 작성 완료!</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">구글 드라이브 <span class="font-bold text-slate-800 dark:text-slate-200" id="savedFolderName"></span> 폴더에 저장되었습니다.</p>
                 <button onclick="closeModal(true)" class="w-full bg-slate-900 dark:bg-slate-700 text-white py-4 rounded-xl font-bold text-lg active:scale-95 transition-transform">작업 종료</button>
             </div>
@@ -174,6 +174,7 @@
     </div>
 
     <script>
+        // ★중요★ 아래 GAS_URL을 새로 배포하신 스크립트 주소로 꼭 교체해 주세요!
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyMOseEngLfI2ts233vXtQwTr4gPyqO7RVdfMXImYbFY1t6RRwSQyYvM8M0_TDj_-P5dw/exec"; 
 
         // --- IndexedDB ---
@@ -289,7 +290,7 @@
             } else { document.getElementById('workDate').valueAsDate = new Date(); }
         }
 
-        // 이미지 압축 엔진
+        // 이미지 1MB 제한 압축 엔진
         function compressImage(dataUrl, maxSizeMB = 1) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -315,7 +316,7 @@
                         quality -= 0.1;
                         compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
                     }
-                    resolve(compressedDataUrl.split(',')[1]);
+                    resolve(compressedDataUrl.split(',')[1]); // Base64 순수 데이터만 추출
                 };
                 img.src = dataUrl;
             });
@@ -338,99 +339,62 @@
             modal.classList.add('flex');
 
             try {
-                // 1. AI 원고 생성 (에러 방지 안전망)
-                document.getElementById('loadingDetail').innerText = "AI가 블로그 포스팅 원고 작성 중...";
-                let aiText = "";
-                try {
-                    aiText = await generateAIText(date, location, service, details);
-                } catch (aiError) {
-                    console.warn("AI 생성 실패, 기본 템플릿 대체", aiError);
-                    aiText = `안녕하세요! 울산의 중구 반구동에 위치한 **조은열쇠도장** 입니다.\n\n[작업 전 사진]\n\n오늘은 ${location}에서 ${service} 작업을 진행했습니다.\n- 특이사항: ${details || '없음'}\n\n[작업 후 사진]\n\n상담 및 예약: 010-4433-7739\n위치: 울산광역시 중구 반구동 103-5번지 세한프리빌3차 3호\n서비스 항목: 도어락 설치/수리, 디지털키, 도장 제작, 각종 열쇠 출장\n반구동에 위치한 조은열쇠도장을 찾아주셔서 감사합니다.`;
-                }
-
-                // 2. 이미지 데이터 추출 및 '1MB 압축'
-                document.getElementById('loadingDetail').innerText = "이미지를 웹 최적화(압축)하여 전송 준비 중...";
+                // 1. 이미지 데이터 추출 및 '1MB 압축'
+                document.getElementById('loadingDetail').innerText = "사진 최적화 중...";
                 const photos = [];
                 
                 const beforePreviews = document.querySelectorAll('#beforeContainer [id^="preview-"]:not(.hidden) img');
                 for (let i = 0; i < beforePreviews.length; i++) {
                     const compressedBase64 = await compressImage(beforePreviews[i].src, 1);
-                    photos.push({
-                        name: `${service}_작업전${i + 1}.JPG`,
-                        data: compressedBase64
-                    });
+                    photos.push({ name: `${service}_작업전${i + 1}.JPG`, data: compressedBase64 });
                 }
                 
                 const afterPreviews = document.querySelectorAll('#afterContainer [id^="preview-"]:not(.hidden) img');
                 for (let i = 0; i < afterPreviews.length; i++) {
                     const compressedBase64 = await compressImage(afterPreviews[i].src, 1);
-                    photos.push({
-                        name: `${service}_작업후${i + 1}.JPG`,
-                        data: compressedBase64
-                    });
+                    photos.push({ name: `${service}_작업후${i + 1}.JPG`, data: compressedBase64 });
                 }
 
+                // AI 호출은 서버에서 수행하므로 현장 정보만 페이로드에 담음
+                const folderName = `${date}_${location}`;
                 const payload = {
-                    folderName: `${date}_${location}`,
-                    content: aiText,
+                    date: date,
+                    location: location,
+                    service: service,
+                    details: details,
+                    folderName: folderName,
                     photos: photos
                 };
 
-                // 3. Google Apps Script 전송
-                document.getElementById('loadingDetail').innerText = "구글 드라이브로 고속 파일 전송 중...";
-                await fetch(GAS_URL, {
+                // 2. Google Apps Script(서버)로 전송
+                document.getElementById('loadingDetail').innerText = "서버로 데이터 전송 및 AI 작성 지시 중...";
+                
+                // no-cors 모드를 제거하여 서버가 돌려주는 JSON(에러 내용 등)을 화면에서 바로 읽을 수 있게 함
+                const response = await fetch(GAS_URL, {
                     method: 'POST',
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // preflight 방지
                     body: JSON.stringify(payload)
                 });
+                
+                const result = await response.json();
 
-                document.getElementById('savedFolderName').innerText = payload.folderName;
+                // 3. 서버 응답 에러 트래킹 (화면에 상세 에러 팝업 표출)
+                if (result.status === "error") {
+                    alert(`🚨 시스템 처리 실패!\n\n[실패 단계]\n${result.step}\n\n[상세 원인]\n${result.message}\n\n이 화면을 캡처해서 전달해 주시면 즉각 조치하겠습니다.`);
+                    closeModal();
+                    return;
+                }
+
+                // 4. 완벽한 성공
+                document.getElementById('savedFolderName').innerText = result.folder || folderName;
                 document.getElementById('modalLoading').classList.add('hidden');
                 document.getElementById('modalSuccess').classList.remove('hidden');
 
             } catch (err) {
-                alert("전송 중 네트워크 오류가 발생했습니다. 다시 시도해주세요. \n상세: " + err.message);
+                // 앱 내부 또는 통신 단절 에러
+                alert("🚨 스마트폰 통신 에러\n\n서버와 연결할 수 없습니다. 데이터 환경을 확인해 주세요.\n\n상세: " + err.message);
                 closeModal();
             }
-        }
-
-        async function generateAIText(date, location, service, details) {
-            // 성도님이 발급받으신 Gemini API 키를 직접 주입했습니다.
-            const apiKey = "AIzaSyDnkJGd94EmtCEP8lbgyn1QS3NIlHbYOYk"; 
-            
-            const prompt = `당신은 울산 '조은열쇠도장'의 마케팅 전문가입니다. 
-다음 정보를 바탕으로 정중하고 따뜻한 네이버 블로그 포스팅 원고를 작성하세요.
-
-[필수 포함 정보]
-- 시작 문구: "안녕하세요! 울산의 중구 반구동에 위치한 **조은열쇠도장** 입니다." 반드시 포함.
-- 강조 사항: 작업 장소(${location})와 "반구동에 위치한 조은열쇠도장"을 문맥 속에서 여러 번 강조.
-- 작업 데이터: 일자(${date}), 서비스(${service}), 특이사항(${details})
-- 하단 정보:
-  상담 및 예약: 010-4433-7739
-  위치: 울산광역시 중구 반구동 103-5번지 세한프리빌3차 3호
-  서비스 항목: 도어락 설치/수리, 디지털키, 도장 제작, 각종 열쇠 출장
-
-[지침]
-1. 문체는 정중하고 따뜻한 느낌으로 작성.
-2. 사진은 작업 전 / 작업 후 2가지 패턴만 존재하며, 글 흐름에 맞게 "[작업 전 사진]", "[작업 후 사진]" 위치를 표시할 것.
-`;
-
-            // [수정됨] 범용 API 키가 접근할 수 있는 가장 빠르고 안정적인 표준 모델로 주소 변경
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await res.json();
-            
-            // API 응답 데이터 검증 로직 (에러 발생 시 콘솔에 상세 이유 출력)
-            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                console.error("AI API 에러 상세 내역:", data); // 개발자 도구에서 에러 원인을 확인할 수 있도록 기록
-                throw new Error("AI 응답 데이터가 없습니다. API 키 상태 또는 모델 접근 권한을 확인하세요.");
-            }
-            
-            return data.candidates[0].content.parts[0].text;
         }
 
         function closeModal(clearForm) {
@@ -444,6 +408,7 @@
                 localStorage.removeItem('locksmith_draft');
             }
         }
+        
         window.onload = () => {
             initTheme();
             loadDraft();
