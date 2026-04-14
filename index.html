@@ -27,8 +27,6 @@
         html.dark { color-scheme: dark; }
         html:not(.dark) { color-scheme: light; }
         
-        /* 캘린더 강제 확장 트릭 삭제 -> 웹 표준으로 안정적 작동 */
-
         .service-btn.active { background-color: #1d4ed8; color: white; border-color: #1d4ed8; box-shadow: 0 4px 10px rgba(29, 78, 216, 0.5); }
         .dark .service-btn.active { background-color: #fbbf24; color: #000; border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
     </style>
@@ -60,7 +58,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 일자</label>
-                        <!-- 에러를 유발하던 onchange, onkeydown 등 삭제. 순수 input 타입으로 원복 -->
+                        <!-- 달력 포커스 오류 해결을 위한 순수 HTML5 Date 속성 유지 -->
                         <input type="date" id="workDate" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-bold focus:outline-none shadow-sm cursor-pointer">
                     </div>
                     <div>
@@ -137,7 +135,7 @@
                 <!-- 4. Details -->
                 <div>
                     <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 특이사항</label>
-                    <textarea id="workDetails" rows="4" placeholder="추가 전달사항을 입력하세요." class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-medium focus:outline-none shadow-sm"></textarea>
+                    <textarea id="workDetails" rows="4" placeholder="[고장 원인/상황] + [해결 과정/제품명] + [고객 반응/추가 서비스]&#10;(단어 위주로 입력해도 AI가 문장으로 완성합니다)" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-medium focus:outline-none shadow-sm"></textarea>
                 </div>
             </form>
         </div>
@@ -398,7 +396,9 @@
         }
 
         async function generateAIText(date, location, service, details) {
-            const apiKey = ""; 
+            // 성도님이 발급받으신 Gemini API 키를 직접 주입했습니다.
+            const apiKey = "AIzaSyDnkJGd94EmtCEP8lbgyn1QS3NIlHbYOYk"; 
+            
             const prompt = `당신은 울산 '조은열쇠도장'의 마케팅 전문가입니다. 
 다음 정보를 바탕으로 정중하고 따뜻한 네이버 블로그 포스팅 원고를 작성하세요.
 
