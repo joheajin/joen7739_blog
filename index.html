@@ -27,10 +27,7 @@
         html.dark { color-scheme: dark; }
         html:not(.dark) { color-scheme: light; }
         
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: transparent; color: transparent; cursor: pointer; opacity: 0; z-index: 10;
-        }
+        /* 캘린더 강제 확장 트릭 삭제 -> 웹 표준으로 안정적 작동 */
 
         .service-btn.active { background-color: #1d4ed8; color: white; border-color: #1d4ed8; box-shadow: 0 4px 10px rgba(29, 78, 216, 0.5); }
         .dark .service-btn.active { background-color: #fbbf24; color: #000; border-color: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
@@ -63,7 +60,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 일자</label>
-                        <input type="date" id="workDate" onkeydown="return false;" onchange="this.blur();" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-bold focus:outline-none shadow-sm cursor-pointer">
+                        <!-- 에러를 유발하던 onchange, onkeydown 등 삭제. 순수 input 타입으로 원복 -->
+                        <input type="date" id="workDate" class="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-4 text-base font-bold focus:outline-none shadow-sm cursor-pointer">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">작업 장소 <span class="text-[10px] font-normal text-slate-400 ml-1">(울산 중구 DB)</span></label>
@@ -293,8 +291,7 @@
             } else { document.getElementById('workDate').valueAsDate = new Date(); }
         }
 
-        // --- 이미지 압축 엔진 (핵심 추가 로직) ---
-        // 용량을 1MB 이하로 압축하는 비동기 함수
+        // 이미지 압축 엔진
         function compressImage(dataUrl, maxSizeMB = 1) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -303,7 +300,6 @@
                     let width = img.width;
                     let height = img.height;
                     
-                    // 최대 해상도를 1920px로 제한하여 1차 크기 축소
                     const maxDim = 1920;
                     if (width > maxDim || height > maxDim) {
                         if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
@@ -314,16 +310,13 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    let quality = 0.8; // 기본 압축률 80%
+                    let quality = 0.8;
                     let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
                     
-                    // Base64 문자열 길이로 대략적인 용량 계산 후 1MB 이하가 될 때까지 압축률 조절
                     while (compressedDataUrl.length * 0.75 > maxSizeMB * 1024 * 1024 && quality > 0.1) {
                         quality -= 0.1;
                         compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
                     }
-                    
-                    // "data:image/jpeg;base64," 뒷부분의 순수 데이터만 추출하여 반환
                     resolve(compressedDataUrl.split(',')[1]);
                 };
                 img.src = dataUrl;
@@ -347,7 +340,7 @@
             modal.classList.add('flex');
 
             try {
-                // 1. AI 원고 생성 (에러 방지 안전망 추가)
+                // 1. AI 원고 생성 (에러 방지 안전망)
                 document.getElementById('loadingDetail').innerText = "AI가 블로그 포스팅 원고 작성 중...";
                 let aiText = "";
                 try {
@@ -357,24 +350,22 @@
                     aiText = `안녕하세요! 울산의 중구 반구동에 위치한 **조은열쇠도장** 입니다.\n\n[작업 전 사진]\n\n오늘은 ${location}에서 ${service} 작업을 진행했습니다.\n- 특이사항: ${details || '없음'}\n\n[작업 후 사진]\n\n상담 및 예약: 010-4433-7739\n위치: 울산광역시 중구 반구동 103-5번지 세한프리빌3차 3호\n서비스 항목: 도어락 설치/수리, 디지털키, 도장 제작, 각종 열쇠 출장\n반구동에 위치한 조은열쇠도장을 찾아주셔서 감사합니다.`;
                 }
 
-                // 2. 이미지 데이터 추출 및 '1MB 압축' (규칙에 따라 이름 부여)
+                // 2. 이미지 데이터 추출 및 '1MB 압축'
                 document.getElementById('loadingDetail').innerText = "이미지를 웹 최적화(압축)하여 전송 준비 중...";
                 const photos = [];
                 
-                // Before 사진들 압축 및 배열 추가
                 const beforePreviews = document.querySelectorAll('#beforeContainer [id^="preview-"]:not(.hidden) img');
                 for (let i = 0; i < beforePreviews.length; i++) {
-                    const compressedBase64 = await compressImage(beforePreviews[i].src, 1); // 1MB 제한 압축
+                    const compressedBase64 = await compressImage(beforePreviews[i].src, 1);
                     photos.push({
                         name: `${service}_작업전${i + 1}.JPG`,
                         data: compressedBase64
                     });
                 }
                 
-                // After 사진들 압축 및 배열 추가
                 const afterPreviews = document.querySelectorAll('#afterContainer [id^="preview-"]:not(.hidden) img');
                 for (let i = 0; i < afterPreviews.length; i++) {
-                    const compressedBase64 = await compressImage(afterPreviews[i].src, 1); // 1MB 제한 압축
+                    const compressedBase64 = await compressImage(afterPreviews[i].src, 1);
                     photos.push({
                         name: `${service}_작업후${i + 1}.JPG`,
                         data: compressedBase64
@@ -407,7 +398,7 @@
         }
 
         async function generateAIText(date, location, service, details) {
-            const apiKey = ""; // API Key 필수 (없을 시 catch 로직으로 이동)
+            const apiKey = ""; 
             const prompt = `당신은 울산 '조은열쇠도장'의 마케팅 전문가입니다. 
 다음 정보를 바탕으로 정중하고 따뜻한 네이버 블로그 포스팅 원고를 작성하세요.
 
@@ -432,7 +423,6 @@
             });
             const data = await res.json();
             
-            // API 응답 데이터 검증 로직 추가 (에러 방어)
             if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
                 throw new Error("AI 응답 데이터가 없습니다.");
             }
